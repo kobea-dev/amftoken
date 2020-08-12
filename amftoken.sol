@@ -1,5 +1,5 @@
 /**
- *Submitted for verification at Etherscan.io on 2020-07-28
+ *Submitted for verification at Etherscan.io on 2020-07-31
 */
 
 pragma solidity 0.4.25;
@@ -338,7 +338,7 @@ contract AsiaModelFestival is BurnableToken,FreezeToken, DetailedERC20, ERC20Tok
 	function timeLock(address _address,uint256 _time, uint256 _value) public onlyOwnerOrAdmin{
         require(_address != address(0));
         
-        uint256 unlockAmount = _value.mul(10);
+        uint256 unlockAmount = _value.div(10);
         
         time[_address] = _time;
         timeLocker[_address] = timeLocker[_address].add(_value);
@@ -378,7 +378,7 @@ contract AsiaModelFestival is BurnableToken,FreezeToken, DetailedERC20, ERC20Tok
         
         for (uint i=0; i < _recipients.length; i++) {
             
-            uint256 unlockAmount = _value[i].mul(10);
+            uint256 unlockAmount = _value[i].div(10);
 
             
             time[_recipients[i]] = _time[i];
