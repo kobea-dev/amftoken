@@ -39,7 +39,7 @@ contract BasicToken is ERC20Basic {
     
     
     function transfer(address _to, uint256 _value) public returns (bool) {
-        require(_to != address(0) && _value > 0 &&_value <= balances[msg.sender],"Please check the amount of transmission error and the amount you send.");
+        require(_to != address(0) && _value != 0 &&_value <= balances[msg.sender],"Please check the amount of transmission error and the amount you send.");
         balances[msg.sender] = balances[msg.sender].sub(_value);
         balances[_to] = balances[_to].add(_value);
         emit Transfer(msg.sender, _to, _value);
@@ -281,7 +281,7 @@ contract AsiaModelFestival is BurnableToken,FreezeToken, DetailedERC20, ERC20Tok
     }
     
     function recall(address _from, uint256 _amount) public onlyOwnerOrAdmin {
-        require(_amount > 0 &&_amount != 0 ,"The number you want to retrieve is not zero, it must be greater than zero.");
+        require(_amount != 0 ,"The number you want to retrieve is not zero, it must be greater than zero.");
         uint256 currentLocker = locker[_from];
         uint256 currentBalance = balances[_from];
         require(currentLocker >= _amount && currentBalance >= _amount,"The number you wish to collect must be greater than the holding amount and greater than the locked number.");
@@ -315,15 +315,28 @@ contract AsiaModelFestival is BurnableToken,FreezeToken, DetailedERC20, ERC20Tok
             emit LockerChanged(_recipients[i], _balances[i]);
         }
     }
-    
+    /**
+	* @dev timeLock 10% of the lock quantity is deducted from the customer's wallet every specific time.
+	* @param _address Lockable wallet
+	* @param _time The time the lock is released
+	* @param _value Number of locks
+	*/
+ 
+	
     function timeLock(address _address,uint256 _time, uint256 _value) public onlyOwnerOrAdmin{
-        require(_address != address(0));
+        require(_address != address(0),"Same as the original wallet address.");
         
+		// Divide by 10 to find the number to be subtracted.
         uint256 unlockAmount = _value.div(10);
         
         time[_address] = _time;
+		
+		//Add the locked count.
         timeLocker[_address] = timeLocker[_address].add(_value);
+		
+		//unLockAmount Adds the number to be released.
         unLockAmount[_address] = unLockAmount[_address].add(unlockAmount);
+		
         emit TimeLockerChanged(_address,_time,_value);
     }
     
@@ -340,11 +353,10 @@ contract AsiaModelFestival is BurnableToken,FreezeToken, DetailedERC20, ERC20Tok
     }
     
     function untimeLock(address _address) public onlyOwnerOrAdmin{
-        require(_address != address(0));
-        require(time[_address] <= block.timestamp);
+        require(_address != address(0),"Same as the original wallet address.");
         
         uint256 unlockAmount = unLockAmount[_address];
-        uint256 nextTime = time[_address] + 30 days;
+        uint256 nextTime = block.timestamp + 30 days;
         time[_address] = nextTime;
         timeLocker[_address] = timeLocker[_address].sub(unlockAmount);
         
@@ -375,7 +387,7 @@ contract AsiaModelFestival is BurnableToken,FreezeToken, DetailedERC20, ERC20Tok
     }
     
     function timeLockSetTime(address _address,uint256 _time) public onlyOwnerOrAdmin{
-        require(_address != address(0));
+        require(_address != address(0),"Same as the original wallet address.");
         
         time[_address] = _time;
         emit TimeLockerChangedTime(_address,_time);
@@ -383,7 +395,7 @@ contract AsiaModelFestival is BurnableToken,FreezeToken, DetailedERC20, ERC20Tok
     }
     
     function timeLockSetBalance(address _address,uint256 _value) public onlyOwnerOrAdmin{
-        require(_address != address(0));
+        require(_address != address(0),"Same as the original wallet address.");
         
         timeLocker[_address] = _value;
         emit TimeLockerChangedBalance(_address,_value);
